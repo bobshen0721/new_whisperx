@@ -1,0 +1,21 @@
+﻿{
+    "model_name":  "Systran/faster-whisper-large-v2",
+    "upstream_commit":  "f0fe81560cb8b68660e564f55dd99207059c092e",
+    "release_tag":  "model-large-v2",
+    "target_file":  "model.bin",
+    "final_size_bytes":  3086912962,
+    "final_sha256":  "bf2a9746382e1aa7ffff6b3a0d137ed9edbd9670c3b87e5d35f5e85e70d0333a",
+    "part_size_bytes":  1572864000,
+    "parts":  [
+                  {
+                      "file":  "faster-whisper-large-v2.model.bin.part01",
+                      "size_bytes":  1572864000,
+                      "sha256":  "82ef6d2cfc9087b03385ed0dac4511d5539a687542b4163b96bf82dcc69e3016"
+                  },
+                  {
+                      "file":  "faster-whisper-large-v2.model.bin.part02",
+                      "size_bytes":  1514048962,
+                      "sha256":  "7355048c8104d56bc0aa394b63e8c4eea5836a334376ff4de5ce7c12a8f4ffe4"
+                  }
+              ]
+}
