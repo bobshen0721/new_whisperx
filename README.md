@@ -1,333 +1,195 @@
-<h1 align="center">WhisperX</h1>
+# 語音轉錄平台2.0v
 
-## Recall.ai - Meeting Transcription API
+這個 repo 是整理過的 WhisperX 公司使用版，目標很簡單：
 
-If you’re looking for a transcription API for meetings, consider checking out [Recall.ai's Meeting Transcription API](https://www.recall.ai/product/meeting-transcription-api?utm_source=github&utm_medium=sponsorship&utm_campaign=mbain-whisperx), an API that works with Zoom, Google Meet, Microsoft Teams, and more. Recall.ai diarizes by pulling the speaker data and separate audio streams from the meeting platforms, which means 100% accurate speaker diarization with actual speaker names.
+- GitHub 下載 ZIP 後就知道怎麼用
+- `large-v2` 模型只從 GitHub 取得
+- 直接啟動 Gradio 網頁介面做語音轉錄
 
+目前保留的核心內容只有：
 
-<p align="center">
-  <a href="https://github.com/m-bain/whisperX/stargazers">
-    <img src="https://img.shields.io/github/stars/m-bain/whisperX.svg?colorA=orange&colorB=orange&logo=github"
-         alt="GitHub stars">
-  </a>
-  <a href="https://github.com/m-bain/whisperX/issues">
-        <img src="https://img.shields.io/github/issues/m-bain/whisperx.svg"
-             alt="GitHub issues">
-  </a>
-  <a href="https://github.com/m-bain/whisperX/blob/master/LICENSE">
-        <img src="https://img.shields.io/github/license/m-bain/whisperX.svg"
-             alt="GitHub license">
-  </a>
-  <a href="https://arxiv.org/abs/2303.00747">
-        <img src="http://img.shields.io/badge/Arxiv-2303.00747-B31B1B.svg"
-             alt="ArXiv paper">
-  </a>
-  <a href="https://twitter.com/intent/tweet?text=&url=https%3A%2F%2Fgithub.com%2Fm-bain%2FwhisperX">
-  <img src="https://img.shields.io/twitter/url/https/github.com/m-bain/whisperX.svg?style=social" alt="Twitter">
-  </a>      
-</p>
+- `app.py`
+  Gradio 網頁介面主程式
+- `whisperx/`
+  WhisperX 核心程式
+- `models/faster-whisper-large-v2/`
+  已放入小檔與 manifest；`model.bin` 由 GitHub Release 下載重組
+- `tools/`
+  模型下載與重組腳本
+- `01_download_large_v2_model.bat`
+  一鍵下載並重組 `large-v2`
+- `02_start_webui.bat`
+  一鍵啟動網頁介面
 
-<img width="1216" align="center" alt="whisperx-arch" src="https://raw.githubusercontent.com/m-bain/whisperX/refs/heads/main/figures/pipeline.png">
+## 你可以做什麼
 
-<!-- <p align="left">Whisper-Based Automatic Speech Recognition (ASR) with improved timestamp accuracy + quality via forced phoneme alignment and voice-activity based batching for fast inference.</p> -->
+- 上傳最長 2 小時音檔
+- 做 ASR 轉錄
+- 做 VAD
+- 做 word-level alignment
+- 有 Hugging Face token 時做 speaker diarization
+- 將 speaker 重新整理成較可讀的區塊
+- 點逐字稿時間軸跳播
+- 匯出 `txt / srt / json / html / zip`
 
-<!-- <h2 align="left", id="what-is-it">What is it 🔎</h2> -->
+## 下載方式
 
-This repository provides fast automatic speech recognition (70x realtime with large-v2) with word-level timestamps and speaker diarization.
+你可以用這兩種方式拿到專案：
 
-- ⚡️ Batched inference for 70x realtime transcription using whisper large-v2
-- 🪶 [faster-whisper](https://github.com/guillaumekln/faster-whisper) backend, requires <8GB gpu memory for large-v2 with beam_size=5
-- 🎯 Accurate word-level timestamps using wav2vec2 alignment
-- 👯‍♂️ Multispeaker ASR using speaker diarization from [pyannote-audio](https://github.com/pyannote/pyannote-audio) (speaker ID labels)
-- 🗣️ VAD preprocessing, reduces hallucination & batching with no WER degradation
+1. 直接從 GitHub 下載 ZIP
+2. `git clone` 這個 repo
 
-**Whisper** is an ASR model [developed by OpenAI](https://github.com/openai/whisper), trained on a large dataset of diverse audio. Whilst it does produces highly accurate transcriptions, the corresponding timestamps are at the utterance-level, not per word, and can be inaccurate by several seconds. OpenAI's whisper does not natively support batching.
+專案網址：
+[new_whisperx](https://github.com/bobshen0721/new_whisperx)
 
-**Phoneme-Based ASR** A suite of models finetuned to recognise the smallest unit of speech distinguishing one word from another, e.g. the element p in "tap". A popular example model is [wav2vec2.0](https://huggingface.co/facebook/wav2vec2-large-960h-lv60-self).
+`large-v2` 模型分片在這個 Release：
+[model-large-v2](https://github.com/bobshen0721/new_whisperx/releases/tag/model-large-v2)
 
-**Forced Alignment** refers to the process by which orthographic transcriptions are aligned to audio recordings to automatically generate phone level segmentation.
+## 第一次使用
 
-**Voice Activity Detection (VAD)** is the detection of the presence or absence of human speech.
+### 1. 準備 Python 環境
 
-**Speaker Diarization** is the process of partitioning an audio stream containing human speech into homogeneous segments according to the identity of each speaker.
+建議：
 
-<h2 align="left", id="highlights">New🚨</h2>
+- Python `3.10` 到 `3.13`
+- Windows
+- 有 NVIDIA GPU 時可用 CUDA
 
-- 1st place at [Ego4d transcription challenge](https://eval.ai/web/challenges/challenge-page/1637/leaderboard/3931/WER) 🏆
-- _WhisperX_ accepted at INTERSPEECH 2023
-- v3 transcript segment-per-sentence: using nltk sent_tokenize for better subtitlting & better diarization
-- v3 released, 70x speed-up open-sourced. Using batched whisper with [faster-whisper](https://github.com/guillaumekln/faster-whisper) backend!
-- v2 released, code cleanup, imports whisper library VAD filtering is now turned on by default, as in the paper.
-- Paper drop🎓👨‍🏫! Please see our [ArxiV preprint](https://arxiv.org/abs/2303.00747) for benchmarking and details of WhisperX. We also introduce more efficient batch inference resulting in large-v2 with \*60-70x REAL TIME speed.
+這個 repo **不包含** Python 本體、CUDA runtime、或所有第三方套件安裝檔。
 
-<h2 align="left" id="setup">Setup ⚙️</h2>
+如果你的公司電腦不能直接連 PyPI，請用公司內部 mirror 或你已經準備好的 Python 環境。
 
-### 0. CUDA Installation
+### 2. 安裝 Python 套件
 
-To use WhisperX with GPU acceleration, install the CUDA toolkit 12.8 before WhisperX. Skip this step if using only the CPU.
+在 repo 根目錄執行：
 
-- For **Linux** users, install the CUDA toolkit 12.8 following this guide:
-  [CUDA Installation Guide for Linux](https://docs.nvidia.com/cuda/cuda-installation-guide-linux/).
-- For **Windows** users, download and install the CUDA toolkit 12.8:
-  [CUDA Downloads](https://developer.nvidia.com/cuda-12-8-1-download-archive).
-
-### 1. Simple Installation (Recommended)
-
-The easiest way to install WhisperX is through PyPi:
-
-```bash
-pip install whisperx
+```powershell
+pip install uv
+uv sync --all-extras
 ```
 
-Or if using [uvx](https://docs.astral.sh/uv/guides/tools/#running-tools):
+如果你使用的是特定 Python：
 
-```bash
-uvx whisperx
+```powershell
+py -3.11 -m pip install uv
+uv sync --all-extras
 ```
 
-### 2. Advanced Installation Options
+`uv sync` 之後，依賴通常會裝在 repo 內的 `.venv`。  
+`02_start_webui.bat` 會優先使用這個 `.venv`，不用你手動 activate。
 
-These installation methods are for developers or users with specific needs. If you're not sure, stick with the simple installation above.
+### 3. 下載 `large-v2` 模型
 
-#### Option A: Install from GitHub
+直接雙擊：
 
-To install directly from the GitHub repository:
+[01_download_large_v2_model.bat](./01_download_large_v2_model.bat)
 
-```bash
-uvx git+https://github.com/m-bain/whisperX.git
+它會做這些事：
+
+- 從 GitHub Release 下載分片
+- 驗證 checksum
+- 重組成：
+  `models/faster-whisper-large-v2/model.bin`
+
+如果你想手動執行 PowerShell 版：
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\tools\download_and_reconstruct_large_v2.ps1 -Owner bobshen0721 -Repo new_whisperx -Tag model-large-v2
 ```
 
-#### Option B: Developer Installation
+### 4. 設定 Hugging Face token
 
-If you want to modify the code or contribute to the project:
+如果你要 speaker diarization，請先設定：
 
-```bash
-git clone https://github.com/m-bain/whisperX.git
-cd whisperX
-uv sync --all-extras --dev
+```powershell
+setx WHISPERX_HF_TOKEN "你的 Hugging Face Token"
 ```
 
-> **Note**: The development version may contain experimental features and bugs. Use the stable PyPI release for production environments.
+重新開一個 PowerShell 視窗後才會生效。
 
-You may also need to install ffmpeg, rust etc. Follow openAI instructions here https://github.com/openai/whisper#setup.
+如果沒有 token，系統仍然可以轉錄，只是 speaker 會退回 `UNKNOWN`。
 
-### Speaker Diarization
+## 啟動方式
 
-To **enable Speaker Diarization**, include your Hugging Face access token (read) that you can generate from [Here](https://huggingface.co/settings/tokens) after the `--hf_token` argument and accept the user agreement for the [speaker-diarization-community-1](https://huggingface.co/pyannote/speaker-diarization-community-1) model.
+最簡單的方法是直接雙擊：
 
-<h2 align="left" id="example">Usage 💬 (command line)</h2>
+[02_start_webui.bat](./02_start_webui.bat)
 
-### English
+或在 PowerShell 執行：
 
-Run whisper on example segment (using default params, whisper small) add `--highlight_words True` to visualise word timings in the .srt file.
-
-    whisperx path/to/audio.wav
-
-Result using _WhisperX_ with forced alignment to wav2vec2.0 large:
-
-https://user-images.githubusercontent.com/36994049/208253969-7e35fe2a-7541-434a-ae91-8e919540555d.mp4
-
-Compare this to original whisper out the box, where many transcriptions are out of sync:
-
-https://user-images.githubusercontent.com/36994049/207743923-b4f0d537-29ae-4be2-b404-bb941db73652.mov
-
-For increased timestamp accuracy, at the cost of higher gpu mem, use bigger models (bigger alignment model not found to be that helpful, see paper) e.g.
-
-    whisperx path/to/audio.wav --model large-v2 --align_model WAV2VEC2_ASR_LARGE_LV60K_960H --batch_size 4
-
-To label the transcript with speaker ID's (set number of speakers if known e.g. `--min_speakers 2` `--max_speakers 2`):
-
-    whisperx path/to/audio.wav --model large-v2 --diarize --highlight_words True
-
-To run on CPU instead of GPU (and for running on Mac OS X):
-
-    whisperx path/to/audio.wav --compute_type int8 --device cpu
-
-### Other languages
-
-The phoneme ASR alignment model is _language-specific_, for tested languages these models are [automatically picked from torchaudio pipelines or huggingface](https://github.com/m-bain/whisperX/blob/f2da2f858e99e4211fe4f64b5f2938b007827e17/whisperx/alignment.py#L24-L58).
-Just pass in the `--language` code, and use the whisper `--model large`.
-
-Currently default models provided for `{en, fr, de, es, it}` via torchaudio pipelines and many other languages via Hugging Face. Please find the list of currently supported languages under `DEFAULT_ALIGN_MODELS_HF` on [alignment.py](https://github.com/m-bain/whisperX/blob/main/whisperx/alignment.py). If the detected language is not in this list, you need to find a phoneme-based ASR model from [huggingface model hub](https://huggingface.co/models) and test it on your data.
-
-#### E.g. German
-
-    whisperx --model large-v2 --language de path/to/audio.wav
-
-https://user-images.githubusercontent.com/36994049/208298811-e36002ba-3698-4731-97d4-0aebd07e0eb3.mov
-
-See more examples in other languages [here](EXAMPLES.md).
-
-## Python usage 🐍
-
-```python
-import whisperx
-import gc
-from whisperx.diarize import DiarizationPipeline
-
-device = "cuda"
-audio_file = "audio.mp3"
-batch_size = 16 # reduce if low on GPU mem
-compute_type = "float16" # change to "int8" if low on GPU mem (may reduce accuracy)
-
-# 1. Transcribe with original whisper (batched)
-model = whisperx.load_model("large-v2", device, compute_type=compute_type)
-
-# save model to local path (optional)
-# model_dir = "/path/"
-# model = whisperx.load_model("large-v2", device, compute_type=compute_type, download_root=model_dir)
-
-audio = whisperx.load_audio(audio_file)
-result = model.transcribe(audio, batch_size=batch_size)
-print(result["segments"]) # before alignment
-
-# delete model if low on GPU resources
-# import gc; import torch; gc.collect(); torch.cuda.empty_cache(); del model
-
-# 2. Align whisper output
-model_a, metadata = whisperx.load_align_model(language_code=result["language"], device=device)
-result = whisperx.align(result["segments"], model_a, metadata, audio, device, return_char_alignments=False)
-
-print(result["segments"]) # after alignment
-
-# delete model if low on GPU resources
-# import gc; import torch; gc.collect(); torch.cuda.empty_cache(); del model_a
-
-# 3. Assign speaker labels
-diarize_model = DiarizationPipeline(token=YOUR_HF_TOKEN, device=device)
-
-# add min/max number of speakers if known
-diarize_segments = diarize_model(audio)
-# diarize_model(audio, min_speakers=min_speakers, max_speakers=max_speakers)
-
-result = whisperx.assign_word_speakers(diarize_segments, result)
-print(diarize_segments)
-print(result["segments"]) # segments are now assigned speaker IDs
+```powershell
+.venv\Scripts\python.exe app.py --server-name 127.0.0.1 --server-port 7860
 ```
 
-## Demos 🚀
+啟動後打開：
 
-[![Replicate (large-v3](https://img.shields.io/static/v1?label=Replicate+WhisperX+large-v3&message=Demo+%26+Cloud+API&color=blue)](https://replicate.com/victor-upmeet/whisperx)
-[![Replicate (large-v2](https://img.shields.io/static/v1?label=Replicate+WhisperX+large-v2&message=Demo+%26+Cloud+API&color=blue)](https://replicate.com/daanelson/whisperx)
-[![Replicate (medium)](https://img.shields.io/static/v1?label=Replicate+WhisperX+medium&message=Demo+%26+Cloud+API&color=blue)](https://replicate.com/carnifexer/whisperx)
+[http://127.0.0.1:7860](http://127.0.0.1:7860)
 
-If you don't have access to your own GPUs, use the links above to try out WhisperX.
+## 網頁介面使用方式
 
-<h2 align="left" id="whisper-mod">Technical Details 👷‍♂️</h2>
+1. 上傳音檔
+2. 選擇語言
+3. 選擇講者人數
+   預設是 `自動推斷`
+   如果你已知就是 2 位或 4 位，也可以手動固定
+4. 按 `開始轉錄`
+5. 在右邊查看逐字稿
+6. 點任一段逐字稿，左邊播放器會跳到該時間
+7. 需要時下載輸出檔
 
-For specific details on the batching and alignment, the effect of VAD, as well as the chosen alignment model, see the preprint [paper](https://www.robots.ox.ac.uk/~vgg/publications/2023/Bain23/bain23.pdf).
+## 輸出檔在哪裡
 
-To reduce GPU memory requirements, try any of the following (2. & 3. can affect quality):
+每次轉錄結果會放在：
 
-1.  reduce batch size, e.g. `--batch_size 4`
-2.  use a smaller ASR model `--model base`
-3.  Use lighter compute type `--compute_type int8`
-
-Transcription differences from openai's whisper:
-
-1. Transcription without timestamps. To enable single pass batching, whisper inference is performed `--without_timestamps True`, this ensures 1 forward pass per sample in the batch. However, this can cause discrepancies the default whisper output.
-2. VAD-based segment transcription, unlike the buffered transcription of openai's. In the WhisperX paper we show this reduces WER, and enables accurate batched inference
-3. `--condition_on_prev_text` is set to `False` by default (reduces hallucination)
-
-<h2 align="left" id="limitations">Limitations ⚠️</h2>
-
-- Transcript words which do not contain characters in the alignment models dictionary e.g. "2014." or "£13.60" cannot be aligned and therefore are not given a timing.
-- Overlapping speech is not handled particularly well by whisper nor whisperx
-- Diarization is far from perfect
-- Language specific wav2vec2 model is needed
-
-<h2 align="left" id="contribute">Contribute 🧑‍🏫</h2>
-
-If you are multilingual, a major way you can contribute to this project is to find phoneme models on huggingface (or train your own) and test them on speech for the target language. If the results look good send a pull request and some examples showing its success.
-
-Bug finding and pull requests are also highly appreciated to keep this project going, since it's already diverging from the original research scope.
-
-<h2 align="left" id="coming-soon">TODO 🗓</h2>
-
-- [x] Multilingual init
-
-- [x] Automatic align model selection based on language detection
-
-- [x] Python usage
-
-- [x] Incorporating speaker diarization
-
-- [x] Model flush, for low gpu mem resources
-
-- [x] Faster-whisper backend
-
-- [x] Add max-line etc. see (openai's whisper utils.py)
-
-- [x] Sentence-level segments (nltk toolbox)
-
-- [x] Improve alignment logic
-
-- [ ] update examples with diarization and word highlighting
-
-- [ ] Subtitle .ass output <- bring this back (removed in v3)
-
-- [ ] Add benchmarking code (TEDLIUM for spd/WER & word segmentation)
-
-- [x] Allow silero-vad as alternative VAD option
-
-- [ ] Improve diarization (word level). _Harder than first thought..._
-
-<h2 align="left" id="contact">Contact/Support 📇</h2>
-
-Contact maxhbain@gmail.com for queries.
-
-<a href="https://www.buymeacoffee.com/maxhbain" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/default-orange.png" alt="Buy Me A Coffee" height="41" width="174"></a>
-
-<h2 align="left" id="acks">Acknowledgements 🙏</h2>
-
-This work, and my PhD, is supported by the [VGG (Visual Geometry Group)](https://www.robots.ox.ac.uk/~vgg/) and the University of Oxford.
-
-Of course, this is builds on [openAI's whisper](https://github.com/openai/whisper).
-Borrows important alignment code from [PyTorch tutorial on forced alignment](https://pytorch.org/tutorials/intermediate/forced_alignment_with_torchaudio_tutorial.html)
-And uses the wonderful pyannote VAD / Diarization https://github.com/pyannote/pyannote-audio
-
-Valuable VAD & Diarization Models from:
-
-- [pyannote-audio](https://github.com/pyannote/pyannote-audio) — Speaker diarization powered by the [speaker-diarization-community-1](https://huggingface.co/pyannote/speaker-diarization-community-1) model, licensed under [CC-BY-4.0](https://creativecommons.org/licenses/by/4.0/) by [pyannoteAI](https://www.pyannote.ai)
-- [silero-vad](https://github.com/snakers4/silero-vad)
-
-Great backend from [faster-whisper](https://github.com/guillaumekln/faster-whisper) and [CTranslate2](https://github.com/OpenNMT/CTranslate2)
-
-Those who have [supported this work financially](https://www.buymeacoffee.com/maxhbain) 🙏
-
-Finally, thanks to the OS [contributors](https://github.com/m-bain/whisperX/graphs/contributors) of this project, keeping it going and identifying bugs.
-
-<h2 align="left" id="cite">Citation</h2>
-If you use this in your research, please cite the paper:
-
-```bibtex
-@article{bain2022whisperx,
-  title={WhisperX: Time-Accurate Speech Transcription of Long-Form Audio},
-  author={Bain, Max and Huh, Jaesung and Han, Tengda and Zisserman, Andrew},
-  journal={INTERSPEECH 2023},
-  year={2023}
-}
+```text
+gradio_outputs\
 ```
 
-## Gradio Web UI
+通常會包含：
 
-This repo also includes a Gradio web UI for long-form transcription.
+- `.txt`
+- `.srt`
+- `.json`
+- `.html`
+- `_bundle.zip`
 
-- Upload audio files up to 2 hours
-- VAD + WhisperX transcription + alignment
-- Optional speaker diarization when a Hugging Face token is provided
-- Friendly speaker labels such as `Speaker A`, `Speaker B`
-- Color-coded speaker blocks
-- Downloadable `txt`, `srt`, `json`, `html`, and bundled `.zip`
+## 建議使用流程
 
-Run it from this repo:
+公司電腦如果只是要拿來使用，不需要先研究整個程式碼。照這個順序就可以：
 
-```bash
-python app.py
+1. 下載 ZIP 並解壓
+2. 安裝 Python 套件
+3. 執行 `01_download_large_v2_model.bat`
+4. 視需要設定 `WHISPERX_HF_TOKEN`
+5. 執行 `02_start_webui.bat`
+
+## 重要提醒
+
+- GitHub Free 不能直接把 `large-v2/model.bin` 以單檔放在 repo，所以改成 Release 分片下載
+- 這個 repo 主要是「可直接使用的整理版」，不是完整保留上游研究說明的版本
+- 預設會優先使用本機的 `models/faster-whisper-large-v2`
+- 若 GPU 記憶體不足，可以改用較小模型，例如：
+
+```powershell
+python app.py --model tiny
 ```
 
-Or after installation:
+## 保留的必要結構
 
-```bash
-whisperx-webui
+```text
+.
+├─ app.py
+├─ whisperx/
+├─ models/
+├─ tools/
+├─ 01_download_large_v2_model.bat
+├─ 02_start_webui.bat
+├─ README.md
+├─ pyproject.toml
+└─ uv.lock
 ```
+
+## 授權
+
+- WhisperX 原始碼：BSD 2-Clause
+- `faster-whisper-large-v2` 模型：依其上游授權與模型卡使用
