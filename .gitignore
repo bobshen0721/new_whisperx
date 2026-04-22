@@ -173,5 +173,7 @@ cython_debug/
 # Local large model artifacts
 models/faster-whisper-large-v2/model.bin
 models/faster-whisper-large-v2/model.bin.sha256
+models/models--*/
 release-assets/
 downloads/
+gradio_outputs/

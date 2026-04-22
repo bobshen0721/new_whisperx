@@ -11,6 +11,7 @@ license = { text = "BSD-2-Clause" }
 dependencies = [
     "ctranslate2>=4.5.0",
     "faster-whisper>=1.2.0",
+    "gradio>=5.31,<6",
     "nltk>=3.9.1",
     "numpy>=2.1.0",
     "omegaconf>=2.3.0",
@@ -31,6 +32,7 @@ dev = ["pytest"]
 
 [project.scripts]
 whisperx = "whisperx.__main__:cli"
+whisperx-webui = "app:main"
 
 [build-system]
 requires = ["setuptools"]

@@ -308,3 +308,26 @@ If you use this in your research, please cite the paper:
   year={2023}
 }
 ```
+
+## Gradio Web UI
+
+This repo also includes a Gradio web UI for long-form transcription.
+
+- Upload audio files up to 2 hours
+- VAD + WhisperX transcription + alignment
+- Optional speaker diarization when a Hugging Face token is provided
+- Friendly speaker labels such as `Speaker A`, `Speaker B`
+- Color-coded speaker blocks
+- Downloadable `txt`, `srt`, `json`, `html`, and bundled `.zip`
+
+Run it from this repo:
+
+```bash
+python app.py
+```
+
+Or after installation:
+
+```bash
+whisperx-webui
+```
