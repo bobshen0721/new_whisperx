@@ -174,6 +174,9 @@ cython_debug/
 models/faster-whisper-large-v2/model.bin
 models/faster-whisper-large-v2/model.bin.sha256
 models/models--*/
-release-assets/
+release-assets/*
+!release-assets/large-v2/
+release-assets/large-v2/*
+!release-assets/large-v2/PUT_RELEASE_PARTS_HERE.txt
 downloads/
 gradio_outputs/

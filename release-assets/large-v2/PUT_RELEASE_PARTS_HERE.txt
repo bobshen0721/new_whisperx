@@ -1,0 +1,8 @@
+Put the manually downloaded GitHub Release files in this folder:
+
+faster-whisper-large-v2.model.bin.part01
+faster-whisper-large-v2.model.bin.part02
+
+Then run:
+
+01B_merge_manual_large_v2_model.bat

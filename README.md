@@ -18,6 +18,8 @@
   模型下載與重組腳本
 - `01_download_large_v2_model.bat`
   一鍵下載並重組 `large-v2`
+- `01B_merge_manual_large_v2_model.bat`
+  自動下載失敗時，用手動下載的 Release 分片重組 `large-v2`
 - `02_start_webui.bat`
   一鍵啟動網頁介面
 
@@ -80,6 +82,8 @@ uv sync --all-extras
 
 ### 3. 下載 `large-v2` 模型
 
+#### 方法 A：自動下載
+
 直接雙擊：
 
 [01_download_large_v2_model.bat](./01_download_large_v2_model.bat)
@@ -96,6 +100,24 @@ uv sync --all-extras
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\tools\download_and_reconstruct_large_v2.ps1 -Owner bobshen0721 -Repo new_whisperx -Tag model-large-v2
 ```
+
+#### 方法 B：手動下載分片後合併
+
+如果公司網路擋住自動下載，請改用這個方式：
+
+1. 打開 Release：
+   [model-large-v2](https://github.com/bobshen0721/new_whisperx/releases/tag/model-large-v2)
+2. 手動下載這兩個檔案：
+   `faster-whisper-large-v2.model.bin.part01`
+   `faster-whisper-large-v2.model.bin.part02`
+3. 把兩個檔案放到：
+   `release-assets\large-v2\`
+   這個資料夾裡也有 `PUT_RELEASE_PARTS_HERE.txt` 提醒你放哪裡
+4. 雙擊：
+   [01B_merge_manual_large_v2_model.bat](./01B_merge_manual_large_v2_model.bat)
+
+這個 bat 不會連網，只會驗證分片並合併成：
+`models/faster-whisper-large-v2/model.bin`
 
 ### 4. 設定 Hugging Face token
 
@@ -183,6 +205,7 @@ python app.py --model tiny
 ├─ models/
 ├─ tools/
 ├─ 01_download_large_v2_model.bat
+├─ 01B_merge_manual_large_v2_model.bat
 ├─ 02_start_webui.bat
 ├─ README.md
 ├─ pyproject.toml
